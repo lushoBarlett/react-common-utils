@@ -1,5 +1,5 @@
 {
-  "name": "@lusho/react-utils",
+  "name": "react-common-utils",
   "version": "1.0.0",
   "description": "Common utilities for React applications",
   "main": "index.js",
