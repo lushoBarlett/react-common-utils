@@ -26,7 +26,7 @@ function useAsync(process, dependencyList) {
   return [result, error, loading, call];
 }
 
-function useStateSync(
+function useAsyncState(
   initial,
   refresh,
   refreshDependencyList,
@@ -64,34 +64,49 @@ function useToggle(initial = false) {
   return [state, toggle];
 }
 
+function withChangedKey(state, key, value) {
+  let newState =
+    Array.isArray(state)
+    ? [...state]
+    : Object.assign({}, state);
+
+  newState[key] = value;
+
+  return newState;
+}
+
+function withChangedKeyPath(state, [key, ...keys], value) {
+  if (keys.length === 0)
+    return withChangedKey(state, key, value);
+  
+  const newChild = withChangedKeyPath(state[key], keys, value);
+  return withChangedKey(state, key, newChild);
+}
+
 function useLens(state, setState, key) {
   const lens = useMemo(() => state[key], [state, key]);
 
-  const setLens = useCallback(newLens => {
-
-    let newState;
-    if (Array.isArray(state))
-      newState = [...state];
-    else
-      newState = Object.assign({}, state);
-
-    newState[key] = newLens;
-    setState(newState);
-  }, [state, setState, key]);
+  const setLens = useCallback(newLens =>
+    setState(withChangedKey(state, key, newLens))
+  , [state, setState, key]);
 
   return [lens, setLens];
 }
 
 function useLensPath(state, setState, keys) {
-  let [lens, setLens] = [state, setState];
+  const lens = useMemo(() =>
+    keys.reduce((lens, key) => lens[key], state)
+  , [state, keys]);
 
-  for (const key of keys)
-    [lens, setLens] = useLens(lens, setLens, key)
+  const setLens = useCallback(newLens =>
+    setState(withChangedKeyPath(state, keys, newLens))
+  , [state, setState, keys]);
 
   return [lens, setLens];
+
 }
 
-export {
+module.exports = {
   sleep,
   useAsync,
   useAsyncState,
