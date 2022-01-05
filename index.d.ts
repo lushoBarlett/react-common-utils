@@ -30,13 +30,13 @@ declare function useToggle(
   initial?: boolean
 ): [boolean, () => void];
 
-declare function useLens<T extends Record<number | string, unknown>>(
+declare function useLens<T = object | Array<unknown>, L = unknown>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
   key: number | string
-): [T[typeof key], Dispatch<T[typeof key]>];
+): [L, Dispatch<L>];
 
-declare function useLensPath<T extends Record<number | string, unknown>, L = unknown>(
+declare function useLensPath<T = object | Array<unknown>, L = unknown>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
   key: Array<number | string>
