@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 
 function sleep(delay) {
   return new Promise(resolve =>
-    setTimeout(() => resolve(undefined), delay));
+    setTimeout(() => resolve(), delay));
 }
 
 function useAsync(process, dependencyList) {
@@ -38,7 +38,9 @@ function useAsyncState(
   let result, error, loading, call;
 
   [result, error, loading, call] = useAsync(async () => {
-    setState(await refresh());
+    const result = await refresh();
+    setState(result);
+    return result;
   }, [setState, ...refreshDependencyList]);
 
   const refreshInfo = { result, error, loading, call };
@@ -106,7 +108,7 @@ function useLensPath(state, setState, keys) {
 
 }
 
-module.exports = {
+export {
   sleep,
   useAsync,
   useAsyncState,

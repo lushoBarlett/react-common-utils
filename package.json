@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Common utilities for React applications",
   "main": "index.js",
+  "types": "index.d.js",
   "scripts": {
     "test": "jest --verbose"
   },
