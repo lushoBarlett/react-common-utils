@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+const { useState, useCallback, useMemo } = require("react");
 
 function sleep(delay) {
   return new Promise(resolve =>
@@ -108,7 +108,7 @@ function useLensPath(state, setState, keys) {
 
 }
 
-export {
+module.exports = {
   sleep,
   useAsync,
   useAsyncState,
