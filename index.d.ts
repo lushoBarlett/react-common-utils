@@ -42,6 +42,12 @@ declare function useLensPath<T = object | Array<unknown>, L = unknown>(
   key: Array<number | string>
 ): [L, Dispatch<L>];
 
+declare function useLensGroup<T = object | Array<unknown>, L = unknown>(
+  state: T,
+  setState: Dispatch<SetStateAction<T>>,
+  keys?: Array<number | string>
+): [L, Dispatch<L>];
+
 export {
   sleep,
   type Process,

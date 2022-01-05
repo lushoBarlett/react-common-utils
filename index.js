@@ -108,6 +108,28 @@ function useLensPath(state, setState, keys) {
 
 }
 
+function useLensGroup(state, setState, keys) {
+  const resolvedKeys = useMemo(() =>
+    keys ?? Object.keys(state)
+  , [state, keys]);
+
+  const lens = useMemo(() =>
+    resolvedKeys.reduce((lens, key) => {
+      lens[key] = state[key];
+      return lens;
+    }, Array.isArray(state) ? [] : {})
+  , [state, resolvedKeys]);
+
+  const setLens = useMemo(() =>
+    resolvedKeys.reduce((setLens, key) => {
+      setLens[key] = value => setState({ ...state, [key]: value });
+      return setLens;
+    }, Array.isArray(state) ? [] : {})
+  , [state, setLens, resolvedKeys]);
+
+  return [lens, setLens];
+}
+
 module.exports = {
   sleep,
   useAsync,
@@ -116,4 +138,5 @@ module.exports = {
   useToggle,
   useLens,
   useLensPath,
+  useLensGroup,
 };
