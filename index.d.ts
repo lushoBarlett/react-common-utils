@@ -57,5 +57,6 @@ export {
   useConst,
   useToggle,
   useLens,
-  useLensPath
+  useLensPath,
+  useLensGroup,
 };
