@@ -30,23 +30,25 @@ declare function useToggle(
   initial?: boolean
 ): [boolean, () => void];
 
-declare function useLens<T = object | Array<unknown>, L = unknown>(
+declare function useLens<T, K extends keyof T, L extends T[K]>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
-  key: number | string
+  key: K
 ): [L, Dispatch<L>];
 
-declare function useLensPath<T = object | Array<unknown>, L = unknown>(
+type AnyKey = number | string | symbol;
+
+declare function useLensPath<T, K extends AnyKey, L>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
-  key: Array<number | string>
+  key: Array<K>
 ): [L, Dispatch<L>];
 
-declare function useLensGroup<T = object | Array<unknown>, L = unknown>(
+declare function useLensGroup<T, K extends keyof T, L extends Partial<T>>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
-  keys?: Array<number | string>
-): [L, Dispatch<L>];
+  keys?: Array<K>
+): [L, T extends Array<unknown> ? Array<Dispatch<T[K]>> : Record<K, Dispatch<T[K]>>];
 
 export {
   sleep,
