@@ -125,7 +125,7 @@ function useLensGroup(state, setState, keys) {
       setLens[key] = value => setState({ ...state, [key]: value });
       return setLens;
     }, Array.isArray(state) ? [] : {})
-  , [state, setLens, resolvedKeys]);
+  , [state, setState, resolvedKeys]);
 
   return [lens, setLens];
 }
