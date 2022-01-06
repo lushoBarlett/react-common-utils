@@ -105,7 +105,6 @@ function useLensPath(state, setState, keys) {
   , [state, setState, keys]);
 
   return [lens, setLens];
-
 }
 
 function useLensGroup(state, setState, keys) {

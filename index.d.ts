@@ -30,25 +30,64 @@ declare function useToggle(
   initial?: boolean
 ): [boolean, () => void];
 
-declare function useLens<T, K extends keyof T, L extends T[K]>(
+declare function useLens<T, K extends keyof T>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
   key: K
-): [L, Dispatch<L>];
+): [T[K], Dispatch<T[K]>];
 
-type AnyKey = number | string | symbol;
+type Cons<Head, Tail> =
+  Tail extends Array<unknown> ?
+    [Head, ...Tail]
+  :
+  never;
 
-declare function useLensPath<T, K extends AnyKey, L>(
+type NonEmptyCons<Head, Tail> =
+  Tail extends [] ?
+    never
+  :
+  Cons<Head, Tail>;
+
+type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, ...Array<never>]
+
+type Paths<T, D extends number = 8> =
+  [D] extends [never] ?
+    never
+  :
+  T extends object ?
+    {
+      [K in keyof T]-?: [K] | NonEmptyCons<K, Paths<T[K], Prev[D]>>
+    }[keyof T]
+  :
+  [];
+
+type Access<T, Path> =
+  Path extends [] ?
+    never
+  :
+  Path extends [infer K] ?
+    K extends keyof T ? T[K] : never
+  :
+  Path extends [infer K, ...infer Rest] ?
+    K extends keyof T ? Access<T[K], Rest> : never
+  :
+  never;
+
+declare function useLensPath<T, K extends Paths<T>>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
-  key: Array<K>
-): [L, Dispatch<L>];
+  keys: Array<K>
+): [Access<T, K>, Dispatch<Access<T, K>>];
 
-declare function useLensGroup<T, K extends keyof T, L extends Partial<T>>(
+type DispatchObject<T, K extends keyof T> = {
+  [P in K]: Dispatch<T[K]>
+}
+
+declare function useLensGroup<T, K extends keyof T>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
   keys?: Array<K>
-): [L, T extends Array<unknown> ? Array<Dispatch<T[K]>> : Record<K, Dispatch<T[K]>>];
+): [Pick<T, K>, DispatchObject<T, K>];
 
 export {
   sleep,
