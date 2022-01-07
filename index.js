@@ -23,7 +23,7 @@ function useAsync(process, dependencyList) {
     }
   }, dependencyList);
 
-  return [result, error, loading, call];
+  return { result, error, loading, call };
 }
 
 function useAsyncState(
@@ -35,21 +35,15 @@ function useAsyncState(
 ) {
   const [state, setState] = useState(initial);
   
-  let result, error, loading, call;
-
-  [result, error, loading, call] = useAsync(async () => {
+  const refreshInfo = useAsync(async () => {
     const result = await refresh();
     setState(result);
     return result;
   }, [setState, ...refreshDependencyList]);
 
-  const refreshInfo = { result, error, loading, call };
-
-  [result, error, loading, call] = useAsync(async () => {
+  const syncInfo = useAsync(async () => {
     return sync(state);
   }, [state, ...syncDependencyList]);
-
-  const syncInfo = { result, error, loading, call };
 
   return [state, setState, refreshInfo, syncInfo];
 }
