@@ -80,7 +80,7 @@ declare function useLensPath<T, K extends Paths<T>>(
 ): [Access<T, K>, Dispatch<SetStateAction<Access<T, K>>>];
 
 type DispatchObject<T, K extends keyof T> = {
-  [P in K]: Dispatch<SetStateAction<T[K]>>
+  [P in K]: Dispatch<SetStateAction<T[P]>>
 }
 
 declare function useLensGroup<T, K extends keyof T>(
