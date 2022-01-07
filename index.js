@@ -66,7 +66,7 @@ function useToggle(initial = false) {
   return [state, toggle];
 }
 
-function withChangedKey(state, key, value) {
+function updateState(state, key, value) {
   let newState =
     Array.isArray(state)
     ? [...state]
@@ -77,31 +77,54 @@ function withChangedKey(state, key, value) {
   return newState;
 }
 
-function withChangedKeyPath(state, [key, ...keys], value) {
+function updateStateRecursive(state, [key, ...keys], value) {
   if (keys.length === 0)
-    return withChangedKey(state, key, value);
+    return updateState(state, key, value);
   
-  const newChild = withChangedKeyPath(state[key], keys, value);
-  return withChangedKey(state, key, newChild);
+  const newChild = updateStateRecursive(state[key], keys, value);
+  return updateState(state, key, newChild);
+}
+
+function diff(oldState, setStateAction) {
+  return (
+    typeof setStateAction === "function"
+    ? setStateAction(oldState)
+    : setStateAction
+  );
+}
+
+function computeLens(state, key) {
+  return state[key];
+}
+
+function computeLensPath(state, keys) {
+  return keys.reduce((lens, key) => lens[key], state);
+}
+
+function computeLensGroup(state, keys) {
+  return keys.reduce((lens, key) => {
+    lens[key] = state[key];
+    return lens;
+  }, Array.isArray(state) ? [] : {});
 }
 
 function useLens(state, setState, key) {
-  const lens = useMemo(() => state[key], [state, key]);
+  const lens = useMemo(() => computeLens(state, key), [state, key]);
 
   const setLens = useCallback(newLens =>
-    setState(withChangedKey(state, key, newLens))
+    setState(state =>
+      updateState(state, key, diff(computeLens(state, key), newLens)))
   , [state, setState, key]);
 
   return [lens, setLens];
 }
 
 function useLensPath(state, setState, keys) {
-  const lens = useMemo(() =>
-    keys.reduce((lens, key) => lens[key], state)
-  , [state, keys]);
+  const lens = useMemo(() => computeLensPath(state, keys), [state, keys]);
 
   const setLens = useCallback(newLens =>
-    setState(withChangedKeyPath(state, keys, newLens))
+    setState(state =>
+      updateStateRecursive(state, keys, diff(computeLensPath(state, keys), newLens)))
   , [state, setState, keys]);
 
   return [lens, setLens];
@@ -112,16 +135,12 @@ function useLensGroup(state, setState, keys) {
     keys ?? Object.keys(state)
   , [state, keys]);
 
-  const lens = useMemo(() =>
-    resolvedKeys.reduce((lens, key) => {
-      lens[key] = state[key];
-      return lens;
-    }, Array.isArray(state) ? [] : {})
-  , [state, resolvedKeys]);
+  const lens = useMemo(() => computeLensGroup(state, resolvedKeys), [state, resolvedKeys]);
 
   const setLens = useMemo(() =>
     resolvedKeys.reduce((setLens, key) => {
-      setLens[key] = value => setState({ ...state, [key]: value });
+      setLens[key] = newLens =>
+        setState(state => updateState(state, key, diff(computeLens(state, key), newLens)));
       return setLens;
     }, Array.isArray(state) ? [] : {})
   , [state, setState, resolvedKeys]);

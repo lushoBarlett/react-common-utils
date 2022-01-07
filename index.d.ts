@@ -34,7 +34,7 @@ declare function useLens<T, K extends keyof T>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
   key: K
-): [T[K], Dispatch<T[K]>];
+): [T[K], Dispatch<SetStateAction<T[K]>>];
 
 type Cons<Head, Tail> =
   Tail extends Array<unknown> ?
@@ -77,10 +77,10 @@ declare function useLensPath<T, K extends Paths<T>>(
   state: T,
   setState: Dispatch<SetStateAction<T>>,
   keys: Array<K>
-): [Access<T, K>, Dispatch<Access<T, K>>];
+): [Access<T, K>, Dispatch<SetStateAction<Access<T, K>>>];
 
 type DispatchObject<T, K extends keyof T> = {
-  [P in K]: Dispatch<T[K]>
+  [P in K]: Dispatch<SetStateAction<T[K]>>
 }
 
 declare function useLensGroup<T, K extends keyof T>(

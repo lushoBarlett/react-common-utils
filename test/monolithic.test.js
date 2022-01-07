@@ -73,6 +73,25 @@ test("lens with array", () => {
 });
 
 
+test("lens update with function", () => {
+  const object = { test: 0 };
+
+  const { result } = renderHook(initial => {
+    const [state, setState] = useState(initial);
+    const [lens, setLens] = useLens(state, setState, "test");
+    return { state, lens, setLens };
+  }, { initialProps: object });
+
+  act(() => {
+    result.current.setLens(prevState => prevState + 1);
+    result.current.setLens(prevState => prevState + 1);
+  });
+
+  expect(result.current.state.test).toBe(2);
+  expect(result.current.lens).toBe(2);
+});
+
+
 test("lens path", () => {
   const object = {
     test: [
@@ -95,6 +114,31 @@ test("lens path", () => {
 
   expect(result.current.state.test[0].test).toBe(1);
   expect(result.current.lens).toBe(1);
+});
+
+
+test("lens path update with function", () => {
+  const object = {
+    test: [
+      {
+        test: 0
+      }
+    ]
+  };
+
+  const { result } = renderHook(initial => {
+    const [state, setState] = useState(initial);
+    const [lens, setLens] = useLensPath(state, setState, ["test", 0, "test"]);
+    return { state, lens, setLens };
+  }, { initialProps: object });
+
+  act(() => {
+    result.current.setLens(prevState => prevState + 1);
+    result.current.setLens(prevState => prevState + 1);
+  });
+
+  expect(result.current.state.test[0].test).toBe(2);
+  expect(result.current.lens).toBe(2);
 });
 
 
@@ -197,4 +241,25 @@ test("lens partial group with array", () => {
 
   expect(result.current.lens[1]).toBe(result.current.state[1]);
   expect(result.current.lens[3]).toBe(result.current.state[3]);
+});
+
+
+test("lens group update with function", () => {
+  const object = {
+    test: 0
+  };
+
+  const { result } = renderHook(initial => {
+    const [state, setState] = useState(initial);
+    const [lens, setLens] = useLensGroup(state, setState);
+    return { state, lens, setLens };
+  }, { initialProps: object });
+
+  act(() => {
+    result.current.setLens.test(prevState => prevState + 1);
+    result.current.setLens.test(prevState => prevState + 1);
+  });
+
+  expect(result.current.state.test).toBe(2);
+  expect(result.current.lens.test).toBe(2);
 });
